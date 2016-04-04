@@ -71,7 +71,7 @@ namespace ZeroSizeArrayAnalyzer {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Don&apos;t create zero-length array {0}.
+        ///   Looks up a localized string similar to Don&apos;t create a zero-length array.
         /// </summary>
         internal static string AnalyzerMessageFormat {
             get {

@@ -1,11 +1,6 @@
-using System;
-using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
-using System.Threading;
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Semantics;
 
@@ -21,7 +16,7 @@ namespace ZeroSizeArrayAnalyzer
         private static readonly LocalizableString Title = new LocalizableResourceString(nameof(Resources.AnalyzerTitle), Resources.ResourceManager, typeof(Resources));
         private static readonly LocalizableString MessageFormat = new LocalizableResourceString(nameof(Resources.AnalyzerMessageFormat), Resources.ResourceManager, typeof(Resources));
         private static readonly LocalizableString Description = new LocalizableResourceString(nameof(Resources.AnalyzerDescription), Resources.ResourceManager, typeof(Resources));
-        private const string Category = "FX Cop Rule";
+        private const string Category = "FxCop Rule";
 
         // You can set the "severity" of your analyzer in your rule declaration.
         // Severities can be: Error, Warning, Info
@@ -39,12 +34,11 @@ namespace ZeroSizeArrayAnalyzer
         {
             context.RegisterCompilationStartAction(startActionContext =>
                 {
-                    if (startActionContext.Compilation.GetTypeByMetadataName("System.Array").GetMembers("Empty").Any())
+                    if (startActionContext.Compilation.GetTypeByMetadataName("System.Array")?.GetMembers("Empty").Any() == true)
                     {
                         startActionContext.RegisterOperationAction(AnalyzeOperation, OperationKind.ArrayCreationExpression);
                     }
-                }
-            );
+                });
         }
 
         // This is the callback. We get the operation for the array creation
@@ -54,15 +48,23 @@ namespace ZeroSizeArrayAnalyzer
         private void AnalyzeOperation(OperationAnalysisContext context)
         {
             var arrayCreation = (IArrayCreationExpression)context.Operation;
+
+            // if not single-dimensional array OR 
+            // its length is not known at compile-time
+            if (arrayCreation.DimensionSizes.Length != 1 || 
+                !arrayCreation.DimensionSizes[0].ConstantValue.HasValue)
+            {
+                return;
+            } 
+
             var dimensions = arrayCreation.DimensionSizes[0].ConstantValue.Value;
+
             if (dimensions is int && (int)dimensions == 0)
             {
                 var diagnostic = Diagnostic.Create(Rule, arrayCreation.Syntax.GetLocation(), arrayCreation.Syntax.ToString());
                 context.ReportDiagnostic(diagnostic);
 
             }
-
-            
         }
     }
 }
