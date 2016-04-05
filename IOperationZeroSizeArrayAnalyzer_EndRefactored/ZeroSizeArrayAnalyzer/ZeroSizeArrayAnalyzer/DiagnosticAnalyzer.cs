@@ -51,6 +51,7 @@ namespace ZeroSizeArrayAnalyzer
 
             // if not single-dimensional array OR 
             // its length is not known at compile-time
+            // then return and don't report diagnostic
             if (arrayCreation.DimensionSizes.Length != 1 || 
                 !arrayCreation.DimensionSizes[0].ConstantValue.HasValue)
             {
@@ -61,9 +62,8 @@ namespace ZeroSizeArrayAnalyzer
 
             if (dimensions is int && (int)dimensions == 0)
             {
-                var diagnostic = Diagnostic.Create(Rule, arrayCreation.Syntax.GetLocation(), arrayCreation.Syntax.ToString());
+                var diagnostic = Diagnostic.Create(Rule, arrayCreation.Syntax.GetLocation());
                 context.ReportDiagnostic(diagnostic);
-
             }
         }
     }

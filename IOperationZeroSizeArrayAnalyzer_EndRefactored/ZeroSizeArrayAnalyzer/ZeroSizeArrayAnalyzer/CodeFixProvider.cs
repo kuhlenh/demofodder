@@ -31,8 +31,7 @@ namespace ZeroSizeArrayAnalyzer
         public sealed override Task RegisterCodeFixesAsync(CodeFixContext context)
         {
             // Get the first diagnostic reported and its location
-            var diagnostic = context.Diagnostics.First();
-            var diagnosticSpan = diagnostic.Location.SourceSpan;
+            var diagnosticSpan = context.Diagnostics.First().Location.SourceSpan;
             
             // Register a code action that will invoke the fix.
             context.RegisterCodeFix(
@@ -40,7 +39,7 @@ namespace ZeroSizeArrayAnalyzer
                     title: title,
                     createChangedDocument: c => UseArrayEmptyAsync(context.Document, diagnosticSpan, c),
                     equivalenceKey: title),
-                diagnostic);
+                context.Diagnostics.First());
 
             return Task.FromResult(false);
         }
@@ -54,7 +53,7 @@ namespace ZeroSizeArrayAnalyzer
             var root = await document.GetSyntaxRootAsync(cancellationToken).ConfigureAwait(false);
             
             // Find the array creation expression node
-            var arrayCreation = root.FindToken(diagnosticSpan.Start).Parent;
+            var arrayCreation = root.FindNode(diagnosticSpan);
 
             // Get the operation for the node
             var semanticModel = await document.GetSemanticModelAsync(cancellationToken);
