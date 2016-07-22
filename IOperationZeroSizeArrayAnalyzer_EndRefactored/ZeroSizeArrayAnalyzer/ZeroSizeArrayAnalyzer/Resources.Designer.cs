@@ -62,7 +62,7 @@ namespace ZeroSizeArrayAnalyzer {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Stop newing up arrays all over da&apos; place!.
+        ///   Looks up a localized string similar to Stop newing up arrays all over the place!.
         /// </summary>
         internal static string AnalyzerDescription {
             get {
