@@ -27,10 +27,8 @@ namespace ZeroSizeArrayAnalyzer
             return WellKnownFixAllProviders.BatchFixer;
         }
 
-        // Our analyzer passes a context to the code fix provider. 
         public sealed override Task RegisterCodeFixesAsync(CodeFixContext context)
         {
-            // Get the first diagnostic reported and its location
             var diagnostic = context.Diagnostics[0];
             var span = diagnostic.Location.SourceSpan;
 
@@ -45,22 +43,16 @@ namespace ZeroSizeArrayAnalyzer
             return Task.FromResult(false);
         }
 
-        // This is our callback for our fix. We use the Syntax Generator
-        // to language agnostically construct new nodes. We then swap
-        // our new node with our old one and return a new document
-        // with the fix. 
         private async Task<Document> UseArrayEmptyAsync(CancellationToken cancellationToken, Document document, TextSpan diagnosticSpan)
         {
             var root = await document.GetSyntaxRootAsync(cancellationToken).ConfigureAwait(false);
             
-            // Find the array creation expression node
             var arrayCreation = root.FindNode(diagnosticSpan);
 
-            // Get the operation for the node
             var semanticModel = await document.GetSemanticModelAsync(cancellationToken);
             var arrayOperation = (IArrayCreationExpression)semanticModel.GetOperation(arrayCreation);
 
-            // Construct InvocationExpression for Array.Empty
+            // Construct syntax for code fix
             var generator = SyntaxGenerator.GetGenerator(document);
             var arrayTypeExpression = generator.TypeExpression(semanticModel.Compilation.GetTypeByMetadataName("System.Array"));
             var memberName = generator.GenericName("Empty", arrayOperation.ElementType);
