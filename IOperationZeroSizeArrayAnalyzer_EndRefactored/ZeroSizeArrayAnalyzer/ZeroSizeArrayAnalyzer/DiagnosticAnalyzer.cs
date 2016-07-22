@@ -27,44 +27,9 @@ namespace ZeroSizeArrayAnalyzer
         // This method is run the first time the analyzer is instantiated.
         // It lets the analyzer declare a callback that will be run in the 
         // future when this node is seen.
-        // We are also checking here to only run this analyzer if the project
-        // is targeting 4.6+ (otherwise the Fixer with Array.Empty<T> doesn't
-        // apply).
         public override void Initialize(AnalysisContext context)
         {
-            context.RegisterCompilationStartAction(startActionContext =>
-                {
-                    if (startActionContext.Compilation.GetTypeByMetadataName("System.Array")?.GetMembers("Empty").Any() == true)
-                    {
-                        startActionContext.RegisterOperationAction(AnalyzeOperation, OperationKind.ArrayCreationExpression);
-                    }
-                });
-        }
 
-        // This is the callback. We get the operation for the array creation
-        // and from the IOperation API we can see that all arrays have
-        // dimension sizes. If the dimension size is 0 we have a zero-length
-        // array and we report our diagnostic. 
-        private void AnalyzeOperation(OperationAnalysisContext context)
-        {
-            var arrayCreation = (IArrayCreationExpression)context.Operation;
-
-            // if not single-dimensional array OR 
-            // its length is not known at compile-time
-            // then return and don't report diagnostic
-            if (arrayCreation.DimensionSizes.Length != 1 || 
-                !arrayCreation.DimensionSizes[0].ConstantValue.HasValue)
-            {
-                return;
-            } 
-
-            var dimensions = arrayCreation.DimensionSizes[0].ConstantValue.Value;
-
-            if (dimensions is int && (int)dimensions == 0)
-            {
-                var diagnostic = Diagnostic.Create(Rule, arrayCreation.Syntax.GetLocation());
-                context.ReportDiagnostic(diagnostic);
-            }
         }
     }
 }

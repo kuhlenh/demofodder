@@ -31,15 +31,16 @@ namespace ZeroSizeArrayAnalyzer
         public sealed override Task RegisterCodeFixesAsync(CodeFixContext context)
         {
             // Get the first diagnostic reported and its location
-            var diagnosticSpan = context.Diagnostics.First().Location.SourceSpan;
-            
+            var diagnostic = context.Diagnostics[0];
+            var span = diagnostic.Location.SourceSpan;
+
             // Register a code action that will invoke the fix.
             context.RegisterCodeFix(
                 CodeAction.Create(
                     title: title,
-                    createChangedDocument: c => UseArrayEmptyAsync(context.Document, diagnosticSpan, c),
+                    createChangedDocument: c => UseArrayEmptyAsync(c, context.Document, span),
                     equivalenceKey: title),
-                context.Diagnostics.First());
+                diagnostic);
 
             return Task.FromResult(false);
         }
@@ -48,7 +49,7 @@ namespace ZeroSizeArrayAnalyzer
         // to language agnostically construct new nodes. We then swap
         // our new node with our old one and return a new document
         // with the fix. 
-        private async Task<Document> UseArrayEmptyAsync(Document document, TextSpan diagnosticSpan, CancellationToken cancellationToken)
+        private async Task<Document> UseArrayEmptyAsync(CancellationToken cancellationToken, Document document, TextSpan diagnosticSpan)
         {
             var root = await document.GetSyntaxRootAsync(cancellationToken).ConfigureAwait(false);
             
@@ -62,7 +63,8 @@ namespace ZeroSizeArrayAnalyzer
             // Construct InvocationExpression for Array.Empty
             var generator = SyntaxGenerator.GetGenerator(document);
             var arrayTypeExpression = generator.TypeExpression(semanticModel.Compilation.GetTypeByMetadataName("System.Array"));
-            var memberAccess = generator.MemberAccessExpression(arrayTypeExpression, generator.GenericName("Empty", arrayOperation.ElementType));
+            var memberName = generator.GenericName("Empty", arrayOperation.ElementType);
+            var memberAccess = generator.MemberAccessExpression(arrayTypeExpression, memberName);
             var invocationExpression = generator.InvocationExpression(memberAccess);
             
             var newRoot = root.ReplaceNode(arrayCreation, invocationExpression);
