@@ -19,17 +19,16 @@ namespace PersonDemo
 
         public static string PrintedForm(Person p)
         {
-            switch (p)
-            {
-                case Student s when s.Gpa > 3.5:
-                    return $"Honor Student {s.Name} ({s.Gpa:N1})";
-                case Student s:
-                    return $"Student {s.Name} ({s.Gpa:N1})";
-                case Teacher t:
-                    return $"Teacher {t.Name} of {t.Subject}";
-                default:
-                    return $"Person {p.Name}";
-            }
+            Student s;
+            Teacher t;
+            if ((s = p as Student) != null && s.Gpa > 3.5)
+                return $"Honor Student {s.Name} ({s.Gpa})";
+            else if (s != null)
+                return $"Student {s.Name} ({s.Gpa})";
+            else if ((t = p as Teacher) != null)
+                return $"Teacher {t.Name} of {t.Subject}";
+            else
+                return $"Person {p.Name}";
         }
     }
 
@@ -71,3 +70,7 @@ namespace PersonDemo
         public void TestPFStudent() => Assert.Equal("Honor Student Willow (4.0)", Program123.PrintedForm(persons[1]));
     }
 }
+
+
+
+
