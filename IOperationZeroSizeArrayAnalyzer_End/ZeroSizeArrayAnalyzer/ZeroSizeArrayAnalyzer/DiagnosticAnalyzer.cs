@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Immutable;
 using System.Linq;
 using Microsoft.CodeAnalysis;
@@ -29,7 +30,31 @@ namespace ZeroSizeArrayAnalyzer
         // future when this node is seen.
         public override void Initialize(AnalysisContext context)
         {
+            context.RegisterCompilationStartAction(startContext =>
+            {
+                var arrayType = startContext.Compilation.GetTypeByMetadataName("System.Array");
+                if(arrayType.GetMembers("Empty").Length > 0)
+                {
+                    startContext.RegisterOperationAction(AnalyzeArray, OperationKind.ArrayCreationExpression);
+                }
+            });
+        }
 
+        private void AnalyzeArray(OperationAnalysisContext context)
+        {
+            var arrayExpression = (IArrayCreationExpression)context.Operation;
+
+            if (arrayExpression.DimensionSizes.Length == 1 
+                && arrayExpression.DimensionSizes[0].ConstantValue.HasValue)
+            {
+                var dim = arrayExpression.DimensionSizes[0].ConstantValue.Value;
+
+                if (dim is 0)
+                {
+                    var diagnostic = Diagnostic.Create(Rule, arrayExpression.Syntax.GetLocation());
+                    context.ReportDiagnostic(diagnostic);
+                }
+            }
         }
     }
 }

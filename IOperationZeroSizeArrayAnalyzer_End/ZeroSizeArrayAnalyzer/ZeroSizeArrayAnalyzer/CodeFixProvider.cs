@@ -46,23 +46,30 @@ namespace ZeroSizeArrayAnalyzer
         private async Task<Document> UseArrayEmptyAsync(CancellationToken cancellationToken, Document document, TextSpan diagnosticSpan)
         {
             var root = await document.GetSyntaxRootAsync(cancellationToken).ConfigureAwait(false);
-            
             var arrayCreation = root.FindNode(diagnosticSpan);
 
             var semanticModel = await document.GetSemanticModelAsync(cancellationToken);
             var arrayOperation = (IArrayCreationExpression)semanticModel.GetOperation(arrayCreation);
 
+            // C#7 local function
+            SyntaxNode GenerateReplacementTree()
+            {
+                var generator = SyntaxGenerator.GetGenerator(document);
+                var arrayTypeExpression = generator.TypeExpression(semanticModel.Compilation.GetTypeByMetadataName("System.Array"));
+                var memberName = generator.GenericName("Empty", arrayOperation.ElementType);
+                var memberAccess = generator.MemberAccessExpression(arrayTypeExpression, memberName);
+                var i = generator.InvocationExpression(memberAccess);
+                return i;
+            }
+
             // Construct syntax for code fix
-            var generator = SyntaxGenerator.GetGenerator(document);
-            var arrayTypeExpression = generator.TypeExpression(semanticModel.Compilation.GetTypeByMetadataName("System.Array"));
-            var memberName = generator.GenericName("Empty", arrayOperation.ElementType);
-            var memberAccess = generator.MemberAccessExpression(arrayTypeExpression, memberName);
-            var invocationExpression = generator.InvocationExpression(memberAccess);
-            
+            SyntaxNode invocationExpression = GenerateReplacementTree();
+
             var newRoot = root.ReplaceNode(arrayCreation, invocationExpression);
             var newDocument = document.WithSyntaxRoot(newRoot);
 
             return newDocument;
         }
+
     }
 }
