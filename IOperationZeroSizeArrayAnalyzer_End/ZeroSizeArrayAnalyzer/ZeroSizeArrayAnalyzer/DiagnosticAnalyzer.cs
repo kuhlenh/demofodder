@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Immutable;
 using System.Linq;
 using Microsoft.CodeAnalysis;
@@ -27,43 +28,32 @@ namespace ZeroSizeArrayAnalyzer
         // This method is run the first time the analyzer is instantiated.
         // It lets the analyzer declare a callback that will be run in the 
         // future when this node is seen.
-        // We are also checking here to only run this analyzer if the project
-        // is targeting 4.6+ (otherwise the Fixer with Array.Empty<T> doesn't
-        // apply).
         public override void Initialize(AnalysisContext context)
         {
-            context.RegisterCompilationStartAction(startActionContext =>
+            context.RegisterCompilationStartAction(startContext =>
+            {
+                var arrayType = startContext.Compilation.GetTypeByMetadataName("System.Array");
+                if(arrayType.GetMembers("Empty").Length > 0)
                 {
-                    if (startActionContext.Compilation.GetTypeByMetadataName("System.Array")?.GetMembers("Empty").Any() == true)
-                    {
-                        startActionContext.RegisterOperationAction(AnalyzeOperation, OperationKind.ArrayCreationExpression);
-                    }
-                });
+                    startContext.RegisterOperationAction(AnalyzeArray, OperationKind.ArrayCreationExpression);
+                }
+            });
         }
 
-        // This is the callback. We get the operation for the array creation
-        // and from the IOperation API we can see that all arrays have
-        // dimension sizes. If the dimension size is 0 we have a zero-length
-        // array and we report our diagnostic. 
-        private void AnalyzeOperation(OperationAnalysisContext context)
+        private void AnalyzeArray(OperationAnalysisContext context)
         {
-            var arrayCreation = (IArrayCreationExpression)context.Operation;
+            var arrayExpression = (IArrayCreationExpression)context.Operation;
 
-            // if not single-dimensional array OR 
-            // its length is not known at compile-time
-            // then return and don't report diagnostic
-            if (arrayCreation.DimensionSizes.Length != 1 || 
-                !arrayCreation.DimensionSizes[0].ConstantValue.HasValue)
+            if (arrayExpression.DimensionSizes.Length == 1 
+                && arrayExpression.DimensionSizes[0].ConstantValue.HasValue)
             {
-                return;
-            } 
+                var dim = arrayExpression.DimensionSizes[0].ConstantValue.Value;
 
-            var dimensions = arrayCreation.DimensionSizes[0].ConstantValue.Value;
-
-            if (dimensions is int && (int)dimensions == 0)
-            {
-                var diagnostic = Diagnostic.Create(Rule, arrayCreation.Syntax.GetLocation());
-                context.ReportDiagnostic(diagnostic);
+                if (dim is 0)
+                {
+                    var diagnostic = Diagnostic.Create(Rule, arrayExpression.Syntax.GetLocation());
+                    context.ReportDiagnostic(diagnostic);
+                }
             }
         }
     }

@@ -27,48 +27,49 @@ namespace ZeroSizeArrayAnalyzer
             return WellKnownFixAllProviders.BatchFixer;
         }
 
-        // Our analyzer passes a context to the code fix provider. 
         public sealed override Task RegisterCodeFixesAsync(CodeFixContext context)
         {
-            // Get the first diagnostic reported and its location
-            var diagnosticSpan = context.Diagnostics.First().Location.SourceSpan;
-            
+            var diagnostic = context.Diagnostics[0];
+            var span = diagnostic.Location.SourceSpan;
+
             // Register a code action that will invoke the fix.
             context.RegisterCodeFix(
                 CodeAction.Create(
                     title: title,
-                    createChangedDocument: c => UseArrayEmptyAsync(context.Document, diagnosticSpan, c),
+                    createChangedDocument: c => UseArrayEmptyAsync(c, context.Document, span),
                     equivalenceKey: title),
-                context.Diagnostics.First());
+                diagnostic);
 
             return Task.FromResult(false);
         }
 
-        // This is our callback for our fix. We use the Syntax Generator
-        // to language agnostically construct new nodes. We then swap
-        // our new node with our old one and return a new document
-        // with the fix. 
-        private async Task<Document> UseArrayEmptyAsync(Document document, TextSpan diagnosticSpan, CancellationToken cancellationToken)
+        private async Task<Document> UseArrayEmptyAsync(CancellationToken cancellationToken, Document document, TextSpan diagnosticSpan)
         {
             var root = await document.GetSyntaxRootAsync(cancellationToken).ConfigureAwait(false);
-            
-            // Find the array creation expression node
             var arrayCreation = root.FindNode(diagnosticSpan);
 
-            // Get the operation for the node
             var semanticModel = await document.GetSemanticModelAsync(cancellationToken);
             var arrayOperation = (IArrayCreationExpression)semanticModel.GetOperation(arrayCreation);
 
-            // Construct InvocationExpression for Array.Empty
-            var generator = SyntaxGenerator.GetGenerator(document);
-            var arrayTypeExpression = generator.TypeExpression(semanticModel.Compilation.GetTypeByMetadataName("System.Array"));
-            var memberAccess = generator.MemberAccessExpression(arrayTypeExpression, generator.GenericName("Empty", arrayOperation.ElementType));
-            var invocationExpression = generator.InvocationExpression(memberAccess);
-            
+            // C#7 local function
+            SyntaxNode GenerateReplacementTree()
+            {
+                var generator = SyntaxGenerator.GetGenerator(document);
+                var arrayTypeExpression = generator.TypeExpression(semanticModel.Compilation.GetTypeByMetadataName("System.Array"));
+                var memberName = generator.GenericName("Empty", arrayOperation.ElementType);
+                var memberAccess = generator.MemberAccessExpression(arrayTypeExpression, memberName);
+                var i = generator.InvocationExpression(memberAccess);
+                return i;
+            }
+
+            // Construct syntax for code fix
+            SyntaxNode invocationExpression = GenerateReplacementTree();
+
             var newRoot = root.ReplaceNode(arrayCreation, invocationExpression);
             var newDocument = document.WithSyntaxRoot(newRoot);
 
             return newDocument;
         }
+
     }
 }

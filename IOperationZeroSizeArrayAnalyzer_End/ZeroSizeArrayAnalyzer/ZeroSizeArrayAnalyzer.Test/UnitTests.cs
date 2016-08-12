@@ -5,15 +5,16 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using TestHelper;
 using ZeroSizeArrayAnalyzer;
+using Xunit;
 
 namespace ZeroSizeArrayAnalyzer.Test
 {
-    [TestClass]
+
     public class UnitTest : CodeFixVerifier
     {
 
         //No diagnostics expected to show up
-        [TestMethod]
+        [Fact]
         public void TestMethod1()
         {
             var test = @"";
@@ -22,7 +23,7 @@ namespace ZeroSizeArrayAnalyzer.Test
         }
 
         //Diagnostic and CodeFix both triggered and checked for
-        [TestMethod]
+        [Fact]
         public void TestMethod2()
         {
             var test = @"
@@ -37,16 +38,17 @@ namespace ZeroSizeArrayAnalyzer.Test
     {
         class TypeName
         {   
+            string[] a = new string[0];
         }
     }";
             var expected = new DiagnosticResult
             {
                 Id = "ZeroSizeArrayAnalyzer",
-                Message = String.Format("Type name '{0}' contains lowercase letters", "TypeName"),
+                Message = "Don't create a zero-length array.",
                 Severity = DiagnosticSeverity.Warning,
                 Locations =
                     new[] {
-                            new DiagnosticResultLocation("Test0.cs", 11, 15)
+                            new DiagnosticResultLocation("Test0.cs", 13, 26)
                         }
             };
 
