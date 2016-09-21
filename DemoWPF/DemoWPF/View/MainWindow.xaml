@@ -1,0 +1,31 @@
+﻿<Window x:Class="DemoWPF.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:DemoWPF"
+        xmlns:vms="clr-namespace:DemoWPF.ViewModel"
+        mc:Ignorable="d"
+        Title="Roslyn Contributor Facts" Height="364.61" Width="525">
+
+    <Window.DataContext>
+        <vms:Presenter />
+    </Window.DataContext>
+    
+    <Grid>
+        <UserControl>
+            <UserControl.InputBindings>
+                <KeyBinding Key="Enter" Command="{Binding ConvertTextCommand}"/>
+            </UserControl.InputBindings>
+        </UserControl>
+
+        <StackPanel Height="336">
+            <Label Foreground="Blue" Margin="5,5,5,0">Select a Repo</Label>
+            <TextBox Text="{Binding SomeContribution, UpdateSourceTrigger=PropertyChanged}" Margin="5"/>
+            <Label Foreground="Blue" Margin="5,5,5,0" Content="History"/>
+            <ListBox ItemsSource="{Binding ContributorList}" Height="200" Margin="5"/>
+            <Button Command="{Binding ConvertTextCommand}" Margin="5">Get Contributors</Button>
+            <Label Foreground="Blue" Margin="5,5,272,0" Content="History"/>
+        </StackPanel>
+    </Grid>
+</Window>
