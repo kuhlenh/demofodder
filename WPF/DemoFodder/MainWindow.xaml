@@ -1,0 +1,92 @@
+﻿<Window x:Class="DemoFodder.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:DemoFodder"
+        mc:Ignorable="d"
+        Title="Roslyn Repo Snapshot" Height="800" Width="1094" FontFamily="Calibri">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition/>
+            <ColumnDefinition Width="0*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.Background>
+            <LinearGradientBrush EndPoint="0.5,1" MappingMode="RelativeToBoundingBox" StartPoint="0.5,0">
+                <GradientStop Color="#FFF7F7F7"/>
+                <GradientStop Color="#FFEEEEEE" Offset="1"/>
+            </LinearGradientBrush>
+        </Grid.Background>
+        <DataGrid x:Name="ContributionList" 
+                  HorizontalAlignment="Left" 
+                  Height="711" 
+                  Margin="10,48,0,0" 
+                  VerticalAlignment="Top" 
+                  Width="1066"
+                  SelectionUnit="FullRow"
+                  AutoGenerateColumns="False"
+                  ItemsSource="{Binding DisplayContributions, Mode=OneWay}"
+                  CanUserAddRows="False"
+                  CanUserDeleteRows="False" BorderBrush="#FFC5C5C5" Background="#FFFDFDFD" FontSize="14">
+            <DataGrid.Columns>
+
+                <DataGridTextColumn Header="Author"
+                                    Binding="{Binding Path=User.Login, Mode=OneWay}" />
+
+                <DataGridTextColumn Header="Id"
+                                    Binding="{Binding Path=Number, Mode=OneWay}" />
+
+                <DataGridTextColumn Header="Title"
+                                    Binding="{Binding Path=Title, Mode=OneWay}" />
+
+                <DataGridTextColumn Header="Created"
+                                    Binding="{Binding Path=DateCreated, Mode=OneWay}" />
+
+                <DataGridTextColumn Header="Contribution Type"
+                                    Binding="{Binding Path=Type, Mode=OneWay}" />
+
+                <DataGridTextColumn Header="Internal?"
+                                    Binding="{Binding Path=IsInDotNetOrg, Mode=OneWay}" />
+
+            </DataGrid.Columns>
+        </DataGrid>
+
+        <Button x:Name="Community" Content="Community Only" HorizontalAlignment="Left" 
+                Margin="175,10,0,0" VerticalAlignment="Top" Width="150" Height="33" 
+                Command="{Binding FilterByCommunity}" 
+                FontSize="16" Foreground="White" FontFamily="Calibri" BorderBrush="#FF5D02AA">
+            <Button.Background>
+                <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+                    <GradientStop Color="#FFC063FF" Offset="0"/>
+                    <GradientStop Color="#FF9E16FD" Offset="0.54"/>
+                    <GradientStop Color="#FF750BBB" Offset="1"/>
+                </LinearGradientBrush>
+            </Button.Background>
+        </Button>
+        <Button x:Name="AllContributions" Content="All Contributions" HorizontalAlignment="Left" 
+                Margin="10,10,0,0" VerticalAlignment="Top" Width="150" Height="33"
+                Command="{Binding AllContributions}" 
+                FontSize="16" Foreground="White" FontFamily="Calibri" BorderBrush="#FF5D02AA">
+            <Button.Background>
+                <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+                    <GradientStop Color="#FFC063FF" Offset="0"/>
+                    <GradientStop Color="#FF9E16FD" Offset="0.54"/>
+                    <GradientStop Color="#FF750BBB" Offset="1"/>
+                </LinearGradientBrush>
+            </Button.Background>
+        </Button>
+        <Button x:Name="PullRequests" Content="Pull Requests Only" HorizontalAlignment="Left" 
+            Margin="340,10,0,0" VerticalAlignment="Top" Width="150" Height="33" 
+            Command="{Binding ShowPullRequests}" 
+            FontSize="16" Foreground="White" FontFamily="Calibri" BorderBrush="#FF5D02AA">
+            <Button.Background>
+                <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+                    <GradientStop Color="#FFC063FF" Offset="0"/>
+                    <GradientStop Color="#FF9E16FD" Offset="0.54"/>
+                    <GradientStop Color="#FF750BBB" Offset="1"/>
+                </LinearGradientBrush>
+            </Button.Background>
+        </Button>
+
+    </Grid>
+</Window>
