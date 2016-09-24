@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using PersonDemo;
-using Xunit;
+﻿using Xunit;
 using static System.Console;
 
 namespace PersonDemo
@@ -16,6 +10,9 @@ namespace PersonDemo
             Person p = new Person("ScottGu");
             WriteLine(PrintedForm(p));
         }
+
+        //allude to longer version to help avoid type checks
+        //end up making code convoluted 
 
         public static string PrintedForm(Person p)
         {
@@ -51,7 +48,6 @@ namespace PersonDemo
         { this.Subject = subject; }
         public string Subject { get; }
     }
-
 
     public class Test
     {
