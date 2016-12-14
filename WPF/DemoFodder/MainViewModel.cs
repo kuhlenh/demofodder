@@ -68,8 +68,6 @@ namespace DemoFodder
             DisplayContributions = DisplayContributions.Where(x=>x.IsInDotNetOrg==false).CreateDerivedCollection(x=>x);
         }
 
-
-        //DEMO: simplify delegate
         protected void RaisePropertyChangedEvent(string propertyName)
         {
             var handler = PropertyChanged;
