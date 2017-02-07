@@ -1,28 +1,11 @@
 ﻿Imports PersonDemo
-Imports VBProject
 Imports Xunit
 
 Module Module1
 
     Sub Main()
-        Dim personsVB = New Person() {New Teacher("Obi-Wan Kenobi", "The Force"), New Student("Anakin Skywalker", 2.75)}
-        Dim lightSabers = New LightSaber() {New LightSaber("Green"), New LightSaber("Blue"), New LightSaber("Red")}
 
-        Dim tuple As (saber As LightSaber,
-                      jedi As Person,
-                      lightScore As Integer) = CalcaulateLightness(personsVB, lightSabers)
-
-        Console.WriteLine(String.Format("{0} with {1} = {2}", tuple.jedi.Name, tuple.saber.Color, tuple.lightScore))
-        Console.ReadLine()
     End Sub
-
-    Private Function CalcaulateLightness(personsVB() As Person, lightSabers() As LightSaber) As (saber As LightSaber, jedi As Person, lightScore As Integer)
-        For Each p In personsVB
-            For Each s In lightSabers
-                Return Score(p, s)
-            Next
-        Next
-    End Function
 
     Public Function Score(p As Person, s As LightSaber) As (saber As LightSaber, jedi As Person, lightScore As Integer)
         If p.Name = "Obi-Wan Kenobi" Then

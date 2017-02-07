@@ -49,8 +49,6 @@ namespace DemoWPF.ViewModel
         }
     }
 
-
-
     class Presenter : TheViewModel
     {
         GitHubQueryUtil _util = new GitHubQueryUtil(new GitHubConnection());
@@ -68,7 +66,7 @@ namespace DemoWPF.ViewModel
             get { return new DelegateCommand(GetOSS); }
         }
 
-        private async void GetOSS()
+        private void GetOSS()
         {
             PrintContributors(_util);
         }
@@ -92,7 +90,6 @@ namespace DemoWPF.ViewModel
                 RaisePropertyChangedEvent("SomeContribution");
             }
         }
-
 
         public async Task<bool> Initialize()
         {

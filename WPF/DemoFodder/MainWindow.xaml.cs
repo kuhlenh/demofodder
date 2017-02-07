@@ -27,8 +27,6 @@ namespace DemoFodder
             InitializeComponent();
             ViewModel = new MainViewModel();
             this.WhenAnyValue(x => x.ViewModel).BindTo(this, x => x.DataContext);
-
-
         }
 
         public IContributionViewModel ViewModel { get; set; }
