@@ -76,7 +76,7 @@ namespace PersonDemo
         [Fact]
         public void TesetPFTeacher()
         {
-            Assert.Equal("Teacher Giles of Librarian Studies", Program123.PrintedForm(persons[3]);
+            Assert.Equal("Teacher Giles of Librarian Studies", Program123.PrintedForm(persons[3]));
         }
     }
 }
