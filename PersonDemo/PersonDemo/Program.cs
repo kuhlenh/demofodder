@@ -7,17 +7,15 @@ namespace PersonDemo
     {
         static void Main(string[] args)
         {
-            Person p = new Person("ScottGu");
-            WriteLine(PrintedForm(p));
-        }
-
-        //allude to longer version to help avoid type checks
-        //end up making code convoluted 
+            Person p = new Person("Spike");
+            WriteLine(PrintedForm(p));   
+        }    
 
         public static string PrintedForm(Person p)
         {
             Student s;
             Teacher t;
+
             if ((s = p as Student) != null && s.Gpa > 3.5)
                 return $"Honor Student {s.Name} ({s.Gpa})";
             else if (s != null)
@@ -38,14 +36,18 @@ namespace PersonDemo
     public class Student : Person
     {
         public Student(string name, double gpa) : base(name)
-        { this.Gpa = gpa; }
+        {
+            this.Gpa = gpa;
+        }
         public double Gpa { get; }
     }
 
     public class Teacher : Person
     {
         public Teacher(string name, string subject) : base(name)
-        { this.Subject = subject; }
+        {
+            this.Subject = subject;
+        }
         public string Subject { get; }
     }
 
@@ -60,10 +62,22 @@ namespace PersonDemo
         };
 
         [Fact]
-        public void TestPFPerson() => Assert.Equal("Person Kasey", Program123.PrintedForm(persons[4]));
+        public void TestPFPerson()
+        {
+            Assert.Equal("Person Kasey", Program123.PrintedForm(persons[4]));
+        }
 
         [Fact]
-        public void TestPFStudent() => Assert.Equal("Honor Student Willow (4.0)", Program123.PrintedForm(persons[1]));
+        public void TestPFStudent()
+        {
+            Assert.Equal("Honor Student Willow (4.0)", Program123.PrintedForm(persons[1]));
+        }
+
+        [Fact]
+        public void TesetPFTeacher()
+        {
+            Assert.Equal("Teacher Giles of Librarian Studies", Program123.PrintedForm(persons[3]);
+        }
     }
 }
 

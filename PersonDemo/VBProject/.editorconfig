@@ -1,0 +1,20 @@
+# top-most EditorConfig file
+root = true
+
+# Don't use tabs for indentation.
+[*]
+indent_style = space
+# (Please don't specify an indent_size here; that has too many unintended consequences.)
+
+# Code files
+[*.{cs,csx,vb,vbx}]
+indent_size = 4
+# Dotnet code style settings:
+[*.{vb}]
+# Sort using and Import directives with System.* appearing first
+dotnet_sort_system_directives_first = true
+# Avoid "this." and "Me." if not necessary
+dotnet_style_qualification_for_field = true:suggestion
+dotnet_style_qualification_for_property = true:suggestion
+dotnet_style_qualification_for_method = true:suggestion
+dotnet_style_qualification_for_event = true:suggestion
