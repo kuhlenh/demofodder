@@ -61,10 +61,11 @@ namespace DemoFodder
 
     public class GitHubStuff
     {
+#region tokens
         private const String kaseyToken = "79dd73a8b850d4a28e7af6e9a6d3eb823b1afbf4";
         private const String jonToken = "7fb6b9b09c7b1020486014fc5eec517619c0e232";
         //private const String koolToken = "eebf82cc3b8d39aa8c2cbfd5d7cf4957c7a1ab43";
-
+#endregion
         static InMemoryCredentialStore credentials = new InMemoryCredentialStore(new Credentials(kaseyToken));
         static ObservableGitHubClient client = new ObservableGitHubClient(new ProductHeaderValue("DemoFodder.Setup"), credentials);
 
@@ -77,21 +78,9 @@ namespace DemoFodder
                     var isInDotnetOrg = client.Organization.Member.CheckMember("dotnet", pullrequest.User.Login);
                     return isInDotnetOrg.Zip(new[] { new PullRequestContribution(pullrequest) });
                 });
-            //.Where(x => x.Item1 == false).Select(x => x.Item2)
-            //.Catch((Exception ex) => 
-            //{
-            //    LogException(ex);
-            //    return Observable.Create((Func<IObserver<PullRequestContribution>>) EmptyObservable);
-            //});
-            //.Catch((Exception ex) =>
-            // {
-            //     LogException(ex);
-            //     return Observable.Create(subscribeAsync: (Func<IObserver<PullRequest>, CancellationToken, Task<Action>>)EmptyObservable);
-            // });
 
             return query.Select(tuple => { tuple.Item2.IsInDotNetOrg = tuple.Item1; return tuple.Item2; });
         }
-
 
         public static IObservable<IssueContribution> GetIssues(string owner, string name)
         {
@@ -107,10 +96,7 @@ namespace DemoFodder
                     var isInDotnetOrg = client.Organization.Member.CheckMember("dotnet", issue.User.Login);
                     return isInDotnetOrg.Zip(new[] { new IssueContribution(issue) });
                 });
-                //.Catch((Exception ex) => {
-                //     LogException(ex);
-                //     return Observable.Create(subscribeAsync: (Func<IObserver<Issue>, CancellationToken, Task<Action>>)EmptyObservable);
-                // });
+
             return query.Select(tuple => { tuple.Item2.IsInDotNetOrg = tuple.Item1; return tuple.Item2; });
         }
 
